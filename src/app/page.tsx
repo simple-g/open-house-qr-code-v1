@@ -34,7 +34,7 @@ export default function HomePage() {
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Replace paper sign-in sheets with instant QR code check-ins. 
-            Capture every visitor's contact info and send branded follow-up emails automatically.
+            Capture every visitor&apos;s contact info and send branded follow-up emails automatically.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/create-event">
