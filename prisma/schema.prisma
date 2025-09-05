@@ -1,15 +1,105 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  logo      String?
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  subscriptionStatus  String?
+  subscriptionEndsAt  DateTime?
+
+  events Event[]
+  signIns SignIn[]
+
+  @@map("agents")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  address     String
+  date        DateTime
+  startTime   String
+  endTime     String
+  description String?
+  
+  agentName   String
+  agentEmail  String
+  agentPhone  String?
+  agentLogo   String?
+  agentColor  String?
+  
+  schedulingLink String?
+  
+  isPaid      Boolean  @default(false)
+  paymentId   String?
+  
+  qrCodeUrl   String?
+  signInUrl   String   @unique
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  agentId String
+  signIns SignIn[]
+
+  @@map("events")
+}
+
+model SignIn {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  role      String
+  timeline  String?
+  consent   Boolean  @default(false)
+  
+  emailSent     Boolean @default(false)
+  emailSentAt   DateTime?
+  emailError    String?
+  
+  unsubscribeToken String @unique @default(cuid())
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+  agent   Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  agentId String
+
+  @@map("sign_ins")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  stripePaymentId   String   @unique
+  amount            Int
+  currency          String   @default("cad")
+  status            String
+  
+  eventId           String?
+  isSubscription    Boolean  @default(false)
+  subscriptionId    String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("payments")
 }
